@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A-Group Blitz</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
+    body { margin: 0; padding: 12px; background: #f1f5f9; color: #1e293b; text-align: center; }
+    .box { max-width: 800px; margin: auto; background: #fff; padding: 16px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    h2 { margin: 0 0 10px; color: #2563eb; }
+    .btn { padding: 12px 18px; font-size: 15px; font-weight: bold; color: #fff; background: #2563eb; border: none; border-radius: 10px; margin: 5px; cursor: pointer; }
+    .btn2 { background: #7c3aed; }
+    .btn3 { background: #ea580c; }
+    .btn-green { background: #16a34a; margin-top: 12px; width: 100%; max-width: 280px; }
+    .hud { display: flex; justify-content: space-between; align-items: center; background: #eff6ff; padding: 10px 14px; border-radius: 10px; font-weight: bold; margin-bottom: 12px; }
+    .card { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 84px; height: 74px; padding: 0 14px; background: #fde047; border: 3px solid #f59e0b; border-radius: 12px; font-size: 26px; font-weight: bold; margin-bottom: 10px; }
+    .quiz-box { background: #fff7ed; border: 2px solid #fdba74; border-radius: 14px; padding: 20px 16px; margin: 10px auto; max-width: 440px; }
+    .quiz-prompt { font-size: 32px; font-weight: bold; color: #ea580c; margin: 8px 0; }
+    .quiz-inp { width: 100%; max-width: 280px; padding: 10px 14px; font-size: 18px; font-weight: bold; text-align: center; border: 2px solid #cbd5e1; border-radius: 10px; outline: none; margin-top: 8px; }
+    .quiz-inp:focus { border-color: #ea580c; }
+    .quiz-fb { min-height: 24px; margin-top: 8px; font-weight: bold; font-size: 14px; }
+    .grid-wrap { overflow-x: auto; }
+    .grid { display: grid; grid-template-columns: 45px repeat(8, 1fr); gap: 4px; min-width: 520px; }
+    .head { background: #1e293b; color: #fff; padding: 6px 2px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+    .per { background: #e2e8f0; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 12px; font-weight: bold; }
+    .slot { position: relative; height: 46px; border: 2px dashed #94a3b8; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; background: #f8fafc; cursor: pointer; }
+    .empty { border: none; background: transparent; pointer-events: none; }
+    .filled { background: #dcfce7; border: 2px solid #16a34a; color: #15803d; }
+    .wrong { background: #fee2e2; border-color: #dc2626; }
+    .prompt-tag { font-size: 12px; font-weight: bold; color: #5b21b6; background: #ede9fe; padding: 1px 6px; border-radius: 999px; margin-bottom: 2px; }
+    .inp { width: 100%; height: 22px; border: none; background: transparent; text-align: center; font-size: 14px; font-weight: bold; outline: none; }
+    /* สไตล์สำหรับตัวอย่างตารางธาตุหน้าแรก */
+    .ref-section { margin-top: 14px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; }
+    .ref-title { font-size: 14px; font-weight: bold; color: #334155; margin-bottom: 8px; }
+    .ref-cell { height: 44px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; }
+    .ref-sym { font-size: 13px; font-weight: bold; color: #1d4ed8; line-height: 1.1; }
+    .ref-name { font-size: 9px; color: #475569; line-height: 1.1; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+    th, td { padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    .hide { display: none; }
+    .credit { margin-top: 18px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 14px; color: #64748b; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>⚛️ ตารางธาตุหมู่ A (ไม่มีเลขอะตอม/เลขมวล)</h2>
+  <div id="menu">
+    <button class="btn" id="m1">🎯 เกม 1: จับวางให้ไว</button>
+    <button class="btn btn2" id="m2">⌨️ เกม 2: พิมพ์เติมตาราง</button>
+    <button class="btn btn3" id="m3">⚡ เกม 3: ทายชื่อ / ตัวย่อไว</button>
+
+    <!-- ตัวอย่างตารางธาตุแสดงทันทีหน้าแรก -->
+    <div class="ref-section">
+      <div class="ref-title">📖 ตัวอย่างตารางธาตุหมู่ A (ทบทวนก่อนเริ่มเกม)</div>
+      <div class="grid-wrap"><div class="grid" id="refGrid"></div></div>
+    </div>
+  </div>
+
+  <div id="play" class="hide">
+    <div class="hud">
+      <span id="prog">0/44</span>
+      <span id="time" style="color:#2563eb;font-size:20px;">00.00 วิ</span>
+      <button class="btn" style="padding:4px 10px;font-size:13px;background:#64748b;" id="back">ออก</button>
+    </div>
+
+    <!-- เกม 1: จับวางให้ไว -->
+    <div id="box1">
+      <div class="card" id="card">H</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:8px;">แตะช่องตารางเพื่อวางธาตุ (ผิด +3 วิ)</div>
+    </div>
+
+    <!-- เกม 2: พิมพ์เติมตาราง -->
+    <div id="box2Desc" class="hide" style="font-size:12px;color:#64748b;margin-bottom:8px;">
+      แต่ละช่องจะสุ่มใบ้เป็น <b>สัญลักษณ์</b> หรือ <b>ชื่อธาตุ</b> ให้พิมพ์อีกแบบให้ถูกต้อง (ไม่สนตัวพิมพ์เล็ก/ใหญ่)
+    </div>
+
+    <div class="grid-wrap" id="gridWrap"><div class="grid" id="grid"></div></div>
+    <button class="btn btn-green hide" id="sub2">✅ ส่งคำตอบ</button>
+
+    <!-- เกม 3: สุ่มธาตุมา ให้บอกชื่อ หรือบอกตัวย่อ -->
+    <div id="box3" class="hide">
+      <div class="quiz-box">
+        <div id="q3Type" style="font-size:13px;font-weight:bold;color:#9a3412;">จงพิมพ์ชื่อภาษาไทยของธาตุนี้</div>
+        <div class="quiz-prompt" id="q3Prompt">H</div>
+        <input class="quiz-inp" id="q3Inp" autocomplete="off" autocapitalize="off" placeholder="พิมพ์คำตอบแล้วกด Enter">
+        <div class="quiz-fb" id="q3Fb"></div>
+        <div style="margin-top:8px;">
+          <button class="btn btn3" id="q3Sub" style="padding:8px 18px;font-size:14px;">ตอบ</button>
+          <button class="btn" id="q3Skip" style="padding:8px 14px;font-size:14px;background:#64748b;">ข้าม (+3 วิ)</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#64748b;">ตอบผิดหรือข้ามบวกเวลาเพิ่ม +3 วิ</div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>อันดับ</th><th>โหมด</th><th>ผลลัพธ์</th><th>เวลา</th></tr></thead>
+    <tbody id="rank"><tr><td colspan="4" style="text-align:center;color:#94a3b8;">ยังไม่มีสถิติ</td></tr></tbody>
+  </table>
+
+  <div class="credit">จัดทำโดย น.ส. พิชชาภา เบ็ญจรัตน์ ม.5/3</div>
+</div>
+
+<script>
+const data = [
+  {s:'H',n:'ไฮโดรเจน',g:1,p:1},{s:'He',n:'ฮีเลียม',g:8,p:1},
+  {s:'Li',n:'ลิเทียม',g:1,p:2},{s:'Be',n:'เบริลเลียม',g:2,p:2},{s:'B',n:'โบรอน',g:3,p:2},{s:'C',n:'คาร์บอน',g:4,p:2},{s:'N',n:'ไนโตรเจน',g:5,p:2},{s:'O',n:'ออกซิเจน',g:6,p:2},{s:'F',n:'ฟลูออรีน',g:7,p:2},{s:'Ne',n:'นีออน',g:8,p:2},
+  {s:'Na',n:'โซเดียม',g:1,p:3},{s:'Mg',n:'แมกนีเซียม',g:2,p:3},{s:'Al',n:'อะลูมิเนียม',g:3,p:3},{s:'Si',n:'ซิลิคอน',g:4,p:3},{s:'P',n:'ฟอสฟอรัส',g:5,p:3},{s:'S',n:'ซัลเฟอร์',g:6,p:3},{s:'Cl',n:'คลอรีน',g:7,p:3},{s:'Ar',n:'อาร์กอน',g:8,p:3},
+  {s:'K',n:'โพแทสเซียม',g:1,p:4},{s:'Ca',n:'แคลเซียม',g:2,p:4},{s:'Ga',n:'แกลเลียม',g:3,p:4},{s:'Ge',n:'เจอร์เมเนียม',g:4,p:4},{s:'As',n:'สารหนู',g:5,p:4},{s:'Se',n:'ซีลีเนียม',g:6,p:4},{s:'Br',n:'โบรมีน',g:7,p:4},{s:'Kr',n:'คริปทอน',g:8,p:4},
+  {s:'Rb',n:'รูบิเดียม',g:1,p:5},{s:'Sr',n:'สตรอนเชียม',g:2,p:5},{s:'In',n:'อินเดียม',g:3,p:5},{s:'Sn',n:'ดีบุก',g:4,p:5},{s:'Sb',n:'พลวง',g:5,p:5},{s:'Te',n:'เทลลูเรียม',g:6,p:5},{s:'I',n:'ไอโอดีน',g:7,p:5},{s:'Xe',n:'ซีนอน',g:8,p:5},
+  {s:'Cs',n:'ซีเซียม',g:1,p:6},{s:'Ba',n:'แบเรียม',g:2,p:6},{s:'Tl',n:'แทลเลียม',g:3,p:6},{s:'Pb',n:'ตะกั่ว',g:4,p:6},{s:'Bi',n:'บิสมัท',g:5,p:6},{s:'Po',n:'พอโลเนียม',g:6,p:6},{s:'At',n:'แอสทาทีน',g:7,p:6},{s:'Rn',n:'เรดอน',g:8,p:6},
+  {s:'Fr',n:'แฟรนเซียม',g:1,p:7},{s:'Ra',n:'เรเดียม',g:2,p:7}
+];
+const TOTAL = data.length; // 44 ธาตุ
+let mode=1, pool=[], cur=null, t0=0, pen=0, timer=null, count=0, ranks=[];
+
+// สร้างตารางตัวอย่างหน้าแรกทันทีที่โหลดหน้า
+function buildRefGrid() {
+  const rEl = document.getElementById('refGrid');
+  let html = '<div class="head">คาบ\หมู่</div>' + [1,2,3,4,5,6,7,8].map(g=>`<div class="head">${g}A</div>`).join('');
+  for(let p=1; p<=7; p++){
+    html += `<div class="per">${p}</div>`;
+    for(let g=1; g<=8; g++){
+      const el = data.find(x=>x.g===g && x.p===p);
+      if(!el) {
+        html += '<div class="slot empty"></div>';
+      } else {
+        html += `<div class="ref-cell"><span class="ref-sym">${el.s}</span><span class="ref-name">${el.n}</span></div>`;
+      }
+    }
+  }
+  rEl.innerHTML = html;
+}
+buildRefGrid();
+
+function start(m) {
+  mode=m; count=0; pen=0; clearInterval(timer);
+  document.getElementById('menu').classList.add('hide');
+  document.getElementById('play').classList.remove('hide');
+  document.getElementById('box1').classList.toggle('hide', m!==1);
+  document.getElementById('box2Desc').classList.toggle('hide', m!==2);
+  document.getElementById('sub2').classList.toggle('hide', m!==2);
+  document.getElementById('gridWrap').classList.toggle('hide', m===3);
+  document.getElementById('box3').classList.toggle('hide', m!==3);
+  document.getElementById('prog').textContent = '0/' + TOTAL;
+
+  if(m===1){
+    buildGrid();
+    pool=[...data].sort(()=>Math.random()-0.5);
+    next1();
+  } else if(m===2){
+    buildGrid();
+  } else if(m===3){
+    pool=[...data].sort(()=>Math.random()-0.5);
+    document.getElementById('q3Fb').textContent = '';
+    next3();
+  }
+  t0=Date.now();
+  timer=setInterval(()=>{ document.getElementById('time').textContent = ((Date.now()-t0)/1000+pen).toFixed(2)+' วิ'; }, 50);
+}
+
+function buildGrid() {
+  const gEl = document.getElementById('grid'); gEl.innerHTML='';
+  gEl.innerHTML += '<div class="head">คาบ\หมู่</div>' + [1,2,3,4,5,6,7,8].map(g=>`<div class="head">${g}A</div>`).join('');
+  for(let p=1; p<=7; p++){
+    gEl.innerHTML += `<div class="per">${p}</div>`;
+    for(let g=1; g<=8; g++){
+      const el = data.find(x=>x.g===g && x.p===p);
+      if(!el) gEl.innerHTML += '<div class="slot empty"></div>';
+      else if(mode===1) gEl.innerHTML += `<div class="slot" data-g="${g}" data-p="${p}"></div>`;
+      else {
+        const showSym = Math.random() < 0.5;
+        const hint = showSym ? el.s : el.n;
+        const target = showSym ? 'name' : 'sym';
+        gEl.innerHTML += `<div class="slot" style="border-style:solid;height:52px;"><span class="prompt-tag">${hint}</span><input class="inp" maxlength="20" autocapitalize="off" placeholder="${target==='sym'?'พิมพ์สัญลักษณ์':'พิมพ์ชื่อ'}" data-g="${g}" data-p="${p}" data-target="${target}"></div>`;
+      }
+    }
+  }
+  if(mode===1) gEl.querySelectorAll('.slot[data-g]').forEach(s => s.onclick = () => place(s));
+  else gEl.querySelectorAll('.inp').forEach(i => i.oninput = () => {
+    let f=0; gEl.querySelectorAll('.inp').forEach(x=>{ if(x.value.trim()) f++; });
+    document.getElementById('prog').textContent = f + '/' + TOTAL;
+  });
+}
+
+function next1() {
+  if(!pool.length) return end(TOTAL);
+  cur = pool.pop();
+  document.getElementById('card').textContent = cur.s;
+}
+
+function place(s) {
+  if(s.classList.contains('filled')) return;
+  if(+s.dataset.g===cur.g && +s.dataset.p===cur.p){
+    s.textContent = cur.s; s.classList.add('filled'); count++;
+    document.getElementById('prog').textContent = count + '/' + TOTAL; next1();
+  } else {
+    pen+=3; s.classList.add('wrong'); setTimeout(()=>s.classList.remove('wrong'), 350);
+  }
+}
+
+document.getElementById('sub2').onclick = () => {
+  let ok=0;
+  document.querySelectorAll('.inp').forEach(i => {
+    const el = data.find(x=>x.g==i.dataset.g && x.p==i.dataset.p);
+    const val = i.value.trim();
+    const isSymTarget = i.dataset.target === 'sym';
+    const ans = isSymTarget ? el.s : el.n;
+    const isCorrect = isSymTarget
+      ? val.toLowerCase() === ans.toLowerCase()
+      : val.replace(/\s+/g,'') === ans.replace(/\s+/g,'');
+    i.disabled=true;
+    if(isCorrect){ ok++; i.parentElement.classList.add('filled'); i.value = `${el.s} (${el.n})`; }
+    else { i.parentElement.classList.add('wrong'); i.value = val ? `${val} → ${ans}` : ans; }
+  });
+  document.getElementById('sub2').classList.add('hide');
+  end(ok);
+};
+
+function next3() {
+  if(!pool.length) return end(count);
+  const item = pool.pop();
+  const askName = Math.random() < 0.5;
+  cur = { ...item, askName };
+  document.getElementById('q3Type').textContent = askName ? 'จงพิมพ์ "ชื่อธาตุ" ของสัญลักษณ์นี้' : 'จงพิมพ์ "สัญลักษณ์ (ตัวย่อ)" ของธาตุนี้';
+  document.getElementById('q3Prompt').textContent = askName ? item.s : item.n;
+  const inp = document.getElementById('q3Inp');
+  inp.value = '';
+  inp.placeholder = askName ? 'เช่น ไฮโดรเจน' : 'เช่น H, He';
+  inp.focus();
+}
+
+function check3() {
+  if(mode!==3 || !cur) return;
+  const inp = document.getElementById('q3Inp');
+  const val = inp.value.trim();
+  if(!val) return;
+  const ans = cur.askName ? cur.n : cur.s;
+  const isCorrect = cur.askName
+    ? val.replace(/\s+/g,'') === ans.replace(/\s+/g,'')
+    : val.toLowerCase() === ans.toLowerCase();
+
+  const fb = document.getElementById('q3Fb');
+  if(isCorrect){
+    count++;
+    document.getElementById('prog').textContent = count + '/' + TOTAL;
+    fb.style.color = '#16a34a';
+    fb.textContent = `✅ ถูกต้อง! ${cur.s} = ${cur.n}`;
+    next3();
+  } else {
+    pen += 3;
+    fb.style.color = '#dc2626';
+    fb.textContent = `❌ ผิด (+3 วิ) ลองอีกครั้ง!`;
+    inp.select();
+  }
+}
+
+document.getElementById('q3Sub').onclick = check3;
+document.getElementById('q3Inp').onkeydown = (e) => { if(e.key==='Enter') check3(); };
+document.getElementById('q3Skip').onclick = () => {
+  if(mode!==3 || !cur) return;
+  pen += 3;
+  const fb = document.getElementById('q3Fb');
+  fb.style.color = '#d97706';
+  fb.textContent = `⏭️ ข้าม (+3 วิ) เฉลย: ${cur.s} = ${cur.n}`;
+  next3();
+};
+
+function end(score) {
+  clearInterval(timer);
+  const finalT = ((Date.now()-t0)/1000+pen).toFixed(2);
+  document.getElementById('time').textContent = finalT+' วิ';
+  const modeName = mode===1 ? 'จับวาง' : (mode===2 ? 'พิมพ์เติมตาราง' : 'ทายชื่อ/ตัวย่อ');
+  ranks.push({m: modeName, sc: score, t: parseFloat(finalT)});
+  ranks.sort((a,b)=> b.sc-a.sc || a.t-b.t);
+  document.getElementById('rank').innerHTML = ranks.map((r,i)=>`<tr><td>#${i+1}</td><td>${r.m}</td><td>${r.sc}/${TOTAL}</td><td>${r.t.toFixed(2)} วิ</td></tr>`).join('');
+  if(mode===1 || mode===3){ document.getElementById('menu').classList.remove('hide'); document.getElementById('play').classList.add('hide'); }
+}
+
+document.getElementById('m1').onclick = () => start(1);
+document.getElementById('m2').onclick = () => start(2);
+document.getElementById('m3').onclick = () => start(3);
+document.getElementById('back').onclick = () => { clearInterval(timer); document.getElementById('menu').classList.remove('hide'); document.getElementById('play').classList.add('hide'); };
+</script>
+</body>
+</html>
